@@ -1,0 +1,167 @@
+<!--
+// 1. Show the user new tweets
+// 2. Display the timestamps of when the tweets were created.
+// 3. Design your interface
+// 4. Allow the user to click on a username to see that user's timeline. -->
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <script src="jquery.js"></script>
+  <script src="data_generator.js"></script>
+  <script src="moment.js"></script>
+  <!-- link css file -->
+  <link href="main.css" type="text/css" rel="stylesheet">
+  <title>:::::: Twiddler ::::::</title>
+
+  <script>
+    //use jquery($('').)
+    $(document).ready(function () {
+      // var $body = $('body');
+      var $body = $('#twiddler_body');
+      $body.html('');
+
+      var clickTweet;
+      var mainPage = true;
+
+      //* 1-0. function for update
+      //Show the user new tweets automatically using constantUpdate()
+      var constantUpdate = function () {
+        if (mainPage) {
+          showTweet();
+          //how to prevent infinite update?
+          setTimeout(constantUpdate, 500);
+        }
+      }
+      constantUpdate();
+
+      //* 1-1. show Tweet
+      function showTweet() {
+        var index = streams.home.length - 1;
+        var $tweet = $('<div></div>');
+        $('#twiddler_body').empty();
+        while (index >= 0) {
+          var tweet = streams.home[index];
+          if (mainPage) {
+
+            // container for tweet data(div)
+            $tweetData = $('<div class="tweetdata"><div>');
+
+            //2-0. username var
+            var $username = $('<span class="username"></span>');
+            $username.text('@' + tweet.user + ': ');
+            $username.appendTo($tweetData);
+            //2-1. add timestamp (+ tweet.created_at)
+            var $timestamp = $('<span class="timestamp"></span>');
+            var howLong = moment(tweet.created_at).fromNow();
+            $timestamp.text(tweet.message + ' ........ ' + howLong)
+            // $timestamp.text(tweet.message + ' ........ ' + tweet.created_at.toLocaleString() + ' (PST)')
+            $timestamp.appendTo($tweetData);
+            $tweetData.appendTo($body);
+
+            //to have color of username => separate by variables
+            // $tweet.text('@' + tweet.user + ': ' + tweet.message + " ........ " + tweet.created_at.toLocaleString() + ' (PST)');
+          }
+          index -= 1;
+        }
+      }
+
+      // * 4-1. Click event (User click & going back to mainPage)
+      $('div').on('click', 'span', function (event) {
+        //extract only username
+        var username = $(this).text().split(':')[0].substring(1);
+        // alert(mainPage);
+        if (mainPage) {
+          mainPage = !mainPage;
+          userTweet(username)
+        } else {
+          mainPage = !mainPage;
+          showTweet()
+        }
+      })
+
+
+      // *6-1. New comment event
+      $(function () {
+        $("#submit").click(function () {
+          var table_body = "";
+          visitor = $("#user").val();
+          var msg = $("#msg").val();
+          writeTweet(visitor, msg);
+          showTweet();
+        });
+      });
+    })
+
+
+    //* 4-0. [USER TWEET] Allow the user to click on a username to see that user's timeline.
+    function userTweet(clickId) {
+      var $body = $('#twiddler_body');
+      $body.html('');
+
+      //modify 1. showTweet()
+
+      $('#twiddler_body').empty();
+      var $tweet = $('<div></div>');
+      var index = streams.home.length - 1;
+      // alert("3" + clickId);
+      while (index >= 0) {
+        var tweet = streams.home[index];
+        if (clickId === tweet.user) {
+
+          // if (clickId === username) {
+          // container for tweet data(div)
+          // $tweetData = $('<div class="tweetdata"><div>');
+          //2-0. username var
+          var $tweetData = $('<div class="tweetdata"><div>');
+          $username = $('<span class="username"></span>');
+          $username.text('@' + tweet.user + ': ');
+          $username.appendTo($tweetData);
+          //2-1. add timestamp (+ tweet.created_at)
+          var $timestamp = $('<span class="timestamp"></span>');
+          var howLong = moment(tweet.created_at).fromNow();
+          $timestamp.text(tweet.message + ' ........ ' + howLong)
+          // $timestamp.text(tweet.message + ' ........ ' + tweet.created_at.toLocaleString() + ' (PST)')
+          $timestamp.appendTo($tweetData);
+          $tweetData.appendTo($body);
+        }
+        index -= 1;
+      }
+    }
+
+
+
+  </script>
+</head>
+
+<body>
+  <h1>Welcome to Twiddler</h1>
+  <!-- //add random image & make responsive(css) -->
+  <img src="https://placeimg.com/800/150/any" alt="randomImage" class="responsive">
+
+
+  <!-- button -->
+  <!-- // <button>Refresh</button> -->
+
+  <h4 style="text-decoration: underline;"> Click a @user name to filter the specific user's tweets and click again to go
+    back to all tweets</h4>
+
+  <!-- form -->
+  <fieldset class='addtweetfield'>
+    <legend>Add a tweet</legend>
+    User Name : <input type="text" id="user">
+    Comment : <input type="text" cols="30" id="msg">
+    <input type="submit" value="Submit" id="submit">
+  </fieldset>
+
+  <!-- refer to jquery inside of script tag -->
+  <div id='twiddler_body'></div>
+
+
+
+</body>
+
+</html>
